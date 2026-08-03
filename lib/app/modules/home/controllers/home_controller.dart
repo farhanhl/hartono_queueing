@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:hartono_queueing/app/modules/home/models/config_model.dart';
@@ -41,31 +40,10 @@ class HomeController extends GetxController with LocalService {
     _initializeUntilSuccess();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-    _showTtsNotice();
-  }
-
-  void _showTtsNotice() {
-    Future.delayed(const Duration(seconds: 3), () {
-      if (isTtsReady) return;
-      Get.defaultDialog(
-        title: "TTS Tidak Tersedia",
-        middleText:
-            "text-to-speech tidak ditemukan di device ini. Suara antrian tidak akan berbunyi.",
-        textConfirm: "Buka Settings",
-        textCancel: "Nanti Saja",
-        confirmTextColor: const Color(0xFFFFFFFF),
-        buttonColor: const Color(0xFF1976D2),
-        onConfirm: () {
-          openTTSSettings();
-          Get.back();
-        },
-        onCancel: () {},
-      );
-    });
-  }
+  // @override
+  // void onReady() {
+  //   super.onReady();
+  // }
 
   void _initializeUntilSuccess() async {
     log('_initializeUntilSuccess: mulai');
@@ -273,64 +251,6 @@ class HomeController extends GetxController with LocalService {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {}
-  }
-
-  Future<void> checkAvailableLanguages() async {
-    try {
-      final tts = _flutterTts ?? FlutterTts();
-
-      log('checkAvailableLanguages: getEngines...');
-      dynamic engines = await tts.getEngines.timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          log('checkAvailableLanguages: getEngines timeout');
-          return null;
-        },
-      );
-      log('checkAvailableLanguages: engines = $engines');
-
-      log('checkAvailableLanguages: getLanguages...');
-      dynamic languages = await tts.getLanguages.timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          log('checkAvailableLanguages: getLanguages timeout');
-          return null;
-        },
-      );
-      log('checkAvailableLanguages: languages = $languages');
-
-      String engineInfo = engines == null
-          ? "Tidak dapat mengambil data engine"
-          : "Engine: ${engines is List ? engines.join(', ') : engines}";
-
-      String langInfo;
-      if (languages == null) {
-        langInfo = "Tidak dapat mengambil data bahasa";
-      } else if (languages is List && languages.isEmpty) {
-        langInfo = "Tidak ada bahasa tersedia";
-      } else {
-        langInfo = (languages as List).join('\n');
-      }
-
-      Get.defaultDialog(
-        title: "Info TTS",
-        middleText: "$engineInfo\n\nBahasa tersedia:\n$langInfo",
-        textConfirm: "OK",
-        confirmTextColor: const Color(0xFFFFFFFF),
-        buttonColor: const Color(0xFF1976D2),
-        onConfirm: () => Get.back(),
-      );
-    } catch (e) {
-      log('checkAvailableLanguages: error - $e');
-      Get.defaultDialog(
-        title: "Error",
-        middleText: "Gagal cek TTS: $e",
-        textConfirm: "OK",
-        confirmTextColor: const Color(0xFFFFFFFF),
-        buttonColor: const Color(0xFFD32F2F),
-        onConfirm: () => Get.back(),
-      );
-    }
   }
 
   Future<void> refreshPage() async {
